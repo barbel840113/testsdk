@@ -25,7 +25,7 @@ func TestGenerateCoinKey(t *testing.T) {
 func TestGenerateSaveCoinKey(t *testing.T) {
 	t.Parallel()
 
-	kb, err := keyring.New(t.Name(), "test", t.TempDir(), nil)
+	kb, err := keyring.New(t.Name(), "test", t.TempDir(), nil, "")
 	require.NoError(t, err)
 
 	addr, mnemonic, err := server.GenerateSaveCoinKey(kb, "keyname", false, hd.Secp256k1)
@@ -45,7 +45,7 @@ func TestGenerateSaveCoinKey(t *testing.T) {
 func TestGenerateSaveCoinKeyOverwriteFlag(t *testing.T) {
 	t.Parallel()
 
-	kb, err := keyring.New(t.Name(), "test", t.TempDir(), nil)
+	kb, err := keyring.New(t.Name(), "test", t.TempDir(), nil, "")
 	require.NoError(t, err)
 
 	keyname := "justakey"
