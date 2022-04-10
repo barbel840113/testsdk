@@ -331,10 +331,10 @@ func GetFromFields(kr keyring.Keyring, from string, genOnly bool) (sdk.AccAddres
 }
 
 // NewKeyringFromBackend gets a Keyring object from a backend
-func NewKeyringFromBackend(ctx Context, backend string) (keyring.Keyring, error) {
+func NewKeyringFromBackend(ctx Context, backend string, password string) (keyring.Keyring, error) {
 	if ctx.GenerateOnly || ctx.Simulate {
-		return keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, ctx.KeyringDir, ctx.Input)
+		return keyring.New(sdk.KeyringServiceName(), keyring.BackendMemory, ctx.KeyringDir, ctx.Input, password)
 	}
 
-	return keyring.New(sdk.KeyringServiceName(), backend, ctx.KeyringDir, ctx.Input)
+	return keyring.New(sdk.KeyringServiceName(), backend, ctx.KeyringDir, ctx.Input, password)
 }

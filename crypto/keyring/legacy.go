@@ -197,9 +197,9 @@ type keyringMigrator struct {
 }
 
 func NewInfoImporter(
-	appName, backend, rootDir string, userInput io.Reader, opts ...Option,
+	appName, backend, rootDir string, userInput io.Reader, password string, opts ...Option,
 ) (InfoImporter, error) {
-	keyring, err := New(appName, backend, rootDir, userInput, opts...)
+	keyring, err := New(appName, backend, rootDir, userInput, password, opts...)
 	if err != nil {
 		return keyringMigrator{}, err
 	}
