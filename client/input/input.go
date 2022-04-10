@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bgentry/speakeasy"
 	isatty "github.com/mattn/go-isatty"
 )
 
@@ -16,24 +15,24 @@ const MinPassLength = 8
 
 // GetPassword will prompt for a password one-time (to sign a tx)
 // It enforces the password length
-func GetPassword(prompt string, buf *bufio.Reader) (pass string, err error) {
-	if inputIsTty() {
-		pass, err = speakeasy.FAsk(os.Stderr, prompt)
-	} else {
-		pass, err = readLineFromBuf(buf)
-	}
+func GetPassword(password string) (pass string, err error) {
+	// if inputIsTty() {
+	// 	pass, err = speakeasy.FAsk(os.Stderr, prompt)
+	// } else {
+	// 	pass, err = readLineFromBuf(buf)
+	// }
 
-	if err != nil {
-		return "", err
-	}
+	// if err != nil {
+	// 	return "", err
+	// }
 
-	if len(pass) < MinPassLength {
-		// Return the given password to the upstream client so it can handle a
-		// non-STDIN failure gracefully.
-		return pass, fmt.Errorf("password must be at least %d characters", MinPassLength)
-	}
+	// if len(pass) < MinPassLength {
+	// 	// Return the given password to the upstream client so it can handle a
+	// 	// non-STDIN failure gracefully.
+	// 	return pass, fmt.Errorf("password must be at least %d characters", MinPassLength)
+	// }
 
-	return pass, nil
+	return password, nil
 }
 
 // GetConfirmation will request user give the confirmation from stdin.
