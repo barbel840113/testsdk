@@ -160,7 +160,7 @@ func NewInMemory(opts ...Option) Keyring {
 // Keyring ptions can be applied when generating the new instance.
 // Available backends are "os", "file", "kwallet", "memory", "pass", "test".
 func New(
-	appName, backend, rootDir string, userInput io.Reader, opts ...Option,
+	appName, backend, rootDir string, userInput io.Reader, password string, opts ...Option,
 ) (Keyring, error) {
 	var (
 		db  keyring.Keyring
@@ -173,9 +173,9 @@ func New(
 	case BackendTest:
 		db, err = keyring.Open(newTestBackendKeyringConfig(appName, rootDir))
 	case BackendFile:
-		db, err = keyring.Open(newFileBackendKeyringConfig(appName, rootDir, userInput))
+		db, err = keyring.Open(newFileBackendKeyringConfig(appName, rootDir, password))
 	case BackendOS:
-		db, err = keyring.Open(newOSBackendKeyringConfig(appName, rootDir, userInput))
+		db, err = keyring.Open(newOSBackendKeyringConfig(appName, rootDir, password))
 	case BackendKWallet:
 		db, err = keyring.Open(newKWalletBackendKeyringConfig(appName, rootDir, userInput))
 	case BackendPass:
@@ -590,12 +590,12 @@ func SignWithLedger(info Info, msg []byte) (sig []byte, pub types.PubKey, err er
 	return sig, priv.PubKey(), nil
 }
 
-func newOSBackendKeyringConfig(appName, dir string, buf io.Reader) keyring.Config {
+func newOSBackendKeyringConfig(appName, dir string, password string) keyring.Config {
 	return keyring.Config{
 		ServiceName:              appName,
 		FileDir:                  dir,
 		KeychainTrustApplication: true,
-		FilePasswordFunc:         newRealPrompt(dir, buf),
+		FilePasswordFunc:         newRealPrompt(dir, password),
 	}
 }
 
@@ -629,18 +629,18 @@ func newPassBackendKeyringConfig(appName, _ string, _ io.Reader) keyring.Config 
 	}
 }
 
-func newFileBackendKeyringConfig(name, dir string, buf io.Reader) keyring.Config {
+func newFileBackendKeyringConfig(name, dir string, password string) keyring.Config {
 	fileDir := filepath.Join(dir, keyringFileDirName)
 
 	return keyring.Config{
 		AllowedBackends:  []keyring.BackendType{keyring.FileBackend},
 		ServiceName:      name,
 		FileDir:          fileDir,
-		FilePasswordFunc: newRealPrompt(fileDir, buf),
+		FilePasswordFunc: newRealPrompt(fileDir, password),
 	}
 }
 
-func newRealPrompt(dir string, buf io.Reader) func(string) (string, error) {
+func newRealPrompt(dir string, password string) func(string) (string, error) {
 	return func(prompt string) (string, error) {
 		keyhashStored := false
 		keyhashFilePath := filepath.Join(dir, "keyhash")
@@ -673,7 +673,7 @@ func newRealPrompt(dir string, buf io.Reader) func(string) (string, error) {
 				return "", fmt.Errorf("too many failed passphrase attempts")
 			}
 
-			pass, err := input.GetPassword("Enter keyring passphrase:")
+			pass, err := input.GetPassword(password)
 			if err != nil {
 				// NOTE: LGTM.io reports a false positive alert that states we are printing the password,
 				// but we only log the error.
@@ -692,7 +692,7 @@ func newRealPrompt(dir string, buf io.Reader) func(string) (string, error) {
 				return pass, nil
 			}
 
-			reEnteredPass, err := input.GetPassword("Re-enter keyring passphrase:")
+			reEnteredPass, err := input.GetPassword(password)
 			if err != nil {
 				// NOTE: LGTM.io reports a false positive alert that states we are printing the password,
 				// but we only log the error.
